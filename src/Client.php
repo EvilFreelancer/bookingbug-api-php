@@ -47,10 +47,16 @@ class Client
     /**
      * Client constructor.
      *
-     * @param Config $config User defined configuration
+     * @param array|Config $config User defined configuration
+     * @throws \Exception
      */
-    public function __construct(Config $config)
+    public function __construct($config)
     {
+        // If array then need create object
+        if (\is_array($config)) {
+            $config = new Config($config);
+        }
+
         // Count of tries
         if ($config->get('tries') !== false) {
             $this->tries = $config->get('tries');
@@ -62,10 +68,10 @@ class Client
         }
 
         // Save config into local variable
-        $this->setConfig($config);
+        $this->_config = $config;
 
         // Store the client object
-        $this->_client = new \GuzzleHttp\Client($config->all(true));
+        $this->_client = new \GuzzleHttp\Client($config->getGuzzle());
     }
 
     /**
@@ -78,28 +84,6 @@ class Client
     private function config(string $parameter)
     {
         return $this->_config->get($parameter);
-    }
-
-    /**
-     * Return socket resource if is exist
-     *
-     * @return \BookingBug\Config
-     */
-    public function getConfig(): Config
-    {
-        return $this->_config;
-    }
-
-    /**
-     * Set configuration of client
-     *
-     * @param \BookingBug\Config $config
-     * @return \BookingBug\Config
-     */
-    public function setConfig(Config $config): self
-    {
-        $this->_config = $config;
-        return $this;
     }
 
     /**
@@ -117,9 +101,11 @@ class Client
         for ($i = 1; $i < $this->tries; $i++) {
 
             // Execute the request to server
-            $result = \in_array($type, self::ALLOWED_METHODS, false)
-                ? $this->_client->request($type, $url, ['form_params' => $params])
-                : null;
+            $result = $this->_client->request($type, $url);
+
+            print_r($type);
+            print_r($url);
+            die();
 
             // Check the code status
             $code = $result->getStatusCode();
@@ -150,27 +136,20 @@ class Client
      * @param array  $params   List of parameters
      * @param bool   $raw      Return data in raw format
      *
-     * @return mixed|false Array with data or error, or False when something went fully wrong
+     * @return mixed|bool Array with data or error, or False when something went fully wrong
      * @throws \Exception
      */
     public function doRequest($type, $endpoint, array $params = [], $raw = false)
     {
-        // Generate the URL for request
-        $url = $this->config('url') . $endpoint;
-
         try {
             // Execute the request to server
-            $result = $this->repeatRequest($type, $url, $params);
+            $result = $this->repeatRequest($type, $endpoint, $params);
+
+            var_dump($result);
+            die();
 
             // Return result
-            return
-                ($result === false)
-                    ? false
-                    : [
-                    'code'    => $result->getStatusCode(),
-                    'reason'  => $result->getReasonPhrase(),
-                    'message' => $raw ? (string) $result->getBody() : json_decode($result->getBody())
-                ];
+            return $raw ? (string) $result->getBody() : json_decode($result->getBody());
 
         } catch (GuzzleException $e) {
             echo $e->getMessage() . "\n";

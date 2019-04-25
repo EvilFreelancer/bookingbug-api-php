@@ -8,11 +8,13 @@ class Config
      * List of allower parameters
      */
     public const ALLOWED = [
-        'appId',
-        'appKey',
-        'companyId',
         'useragent',
-        'base_url',
+        'base_uri',
+        'app_id',
+        'app_key',
+        'timeout',
+        'username',
+        'password',
         'tries',
         'seconds'
     ];
@@ -21,8 +23,11 @@ class Config
      * List of minimal required parameters
      */
     public const REQUIRED = [
-        'appId',
-        'appKey',
+        'useragent',
+        'base_uri',
+        'timeout',
+        'app_id',
+        'app_key',
     ];
 
     /**
@@ -36,8 +41,10 @@ class Config
         'http_errors' => false,
 
         // Main parameters
+        'timeout'     => 20,
         'useragent'   => 'BookingBug PHP Client',
-        'base_url'    => 'https://uk.bookingbutt.com'
+        'base_uri'    => 'https://uk.bookingbutt.com',
+        'base_path'   => '/api/v1'
     ];
 
     /**
@@ -56,8 +63,8 @@ class Config
     /**
      * Set parameter by name
      *
-     * @param string          $name
-     * @param string|bool|int $value
+     * @param string               $name  Name of parameter
+     * @param string|bool|int|null $value Value of parameter
      * @return \BookingBug\Config
      * @throws \Exception
      */
@@ -76,7 +83,7 @@ class Config
      * Get all available parameters on only one
      *
      * @param string $name
-     * @return string|bool|int
+     * @return string|bool|int|null
      */
     public function get($name)
     {
@@ -96,22 +103,29 @@ class Config
     /**
      * Return all preconfigured parameters
      *
-     * @param bool  $ignore       Ignore parameters which is not important for client
-     * @param array $ignore_items Which items should be excluded from array
      * @return array
      */
-    public function all($ignore = false, array $ignore_items = ['tries', 'seconds']): array
+    public function getAll(): array
     {
-        $parameters = $this->_parameters;
-        // Remove ignored items from array
-        if ($ignore) {
-            foreach ($parameters as $name => $value) {
-                if (in_array($name, $ignore_items, false)) {
-                    unset($parameters[$name]);
-                }
-            }
-        }
-        return $parameters;
+        return $this->_parameters;
+    }
+
+    /**
+     * Return all ready for Guzzle parameters
+     *
+     * @return array
+     */
+    public function getGuzzle(): array
+    {
+        return [
+            'base_uri' => $this->get('base_uri') . $this->get('base_path'),
+            'timeout'  => $this->get('timeout'),
+            'headers'  => [
+                'User-Agent' => $this->get('useragent'),
+                'App-Id'     => $this->get('app_id'),
+                'App-Key'    => $this->get('app_key'),
+            ]
+        ];
     }
 
     /**
