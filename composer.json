@@ -22,7 +22,7 @@
     ],
     "license": "MIT",
     "minimum-stability": "stable",
-    "name": "drteam/bookingbug-api",
+    "name": "evilfreelancer/bookingbug-api-php",
     "require": {
         "php": ">=7.1",
         "ext-curl": "*",
