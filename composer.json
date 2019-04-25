@@ -1,0 +1,36 @@
+{
+    "authors": [
+        {
+            "homepage": "http://drteam.rocks/",
+            "email": "paul@drteam.rocks",
+            "name": "Paul Rock",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "BookingBug\\": "src/"
+        }
+    },
+    "description": "BookginBug RESTful API Client",
+    "homepage": "https://dev.bookingbug.com/",
+    "keywords": [
+        "bookingbug",
+        "client",
+        "rest-api",
+        "api-client"
+    ],
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "name": "drteam/bookingbug-api",
+    "require": {
+        "php": ">=7.1",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "guzzlehttp/guzzle": "^6.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.0"
+    },
+    "type": "library"
+}
