@@ -64,7 +64,7 @@ class Client
 
         // Waiting time
         if ($config->get('seconds') !== false) {
-            $this->tries = $config->get('seconds');
+            $this->seconds = $config->get('seconds');
         }
 
         // Save config into local variable
@@ -101,18 +101,19 @@ class Client
         for ($i = 1; $i < $this->tries; $i++) {
 
             // Execute the request to server
-            $result = $this->_client->request($type, $url);
-
-            print_r($type);
-            print_r($url);
-            die();
+            $result = $this->_client->request($type, $this->_config->get('base_path') . $url);
 
             // Check the code status
             $code = $result->getStatusCode();
 
-            // If code is not 405 (but 200 foe example) then exit from loop
-            if ($code === 200 || $code === 500) {
+            // If code is not 405 (but 200 for example) then exit from loop
+            if ($code === 200 || $code === 201) {
                 return $result;
+            }
+
+            // If page returned 404 error
+            if ($code === 500) {
+                throw new \Exception('500 Server error');
             }
 
             // If page returned 404 error
@@ -145,15 +146,12 @@ class Client
             // Execute the request to server
             $result = $this->repeatRequest($type, $endpoint, $params);
 
-            var_dump($result);
-            die();
-
             // Return result
             return $raw ? (string) $result->getBody() : json_decode($result->getBody());
 
         } catch (GuzzleException $e) {
             echo $e->getMessage() . "\n";
-            echo $e->getTrace();
+            //echo $e->getTrace();
         }
 
         return false;

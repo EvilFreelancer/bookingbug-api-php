@@ -43,7 +43,7 @@ class Config
         // Main parameters
         'timeout'     => 20,
         'useragent'   => 'BookingBug PHP Client',
-        'base_uri'    => 'https://uk.bookingbutt.com',
+        'base_uri'    => 'https://uk.bookingbug.com',
         'base_path'   => '/api/v1'
     ];
 
